@@ -33,4 +33,27 @@ class Prefs(context: Context) {
     var showNotifications: Boolean
         get() = sp.getBoolean("show_notifications", true)
         set(v) = sp.edit().putBoolean("show_notifications", v).apply()
+
+    /** true = einmal tippen beendet das AOD, false = doppelt tippen. */
+    var singleTapToExit: Boolean
+        get() = sp.getBoolean("single_tap", true)
+        set(v) = sp.edit().putBoolean("single_tap", v).apply()
+
+    // --- Widgets ---
+    var showAlarm: Boolean
+        get() = sp.getBoolean("w_alarm", true)
+        set(v) = sp.edit().putBoolean("w_alarm", v).apply()
+
+    var showCalendar: Boolean
+        get() = sp.getBoolean("w_calendar", false)
+        set(v) = sp.edit().putBoolean("w_calendar", v).apply()
+
+    var showMedia: Boolean
+        get() = sp.getBoolean("w_media", true)
+        set(v) = sp.edit().putBoolean("w_media", v).apply()
+
+    /** ID eines eingebundenen Android-Widgets, -1 = keins. */
+    var hostedWidgetId: Int
+        get() = sp.getInt("w_host_id", -1)
+        set(v) = sp.edit().putInt("w_host_id", v).apply()
 }

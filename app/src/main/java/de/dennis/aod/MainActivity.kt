@@ -1,6 +1,9 @@
 package de.dennis.aod
 
 import android.Manifest
+import android.app.Activity
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +15,7 @@ import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -24,6 +28,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnOverlay: Button
     private lateinit var btnNotif: Button
     private lateinit var btnBattery: Button
+    private lateinit var btnWidget: Button
+    private lateinit var switchCalendar: MaterialSwitch
+    private var pendingWidgetId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +66,27 @@ class MainActivity : AppCompatActivity() {
 
         bindSwitch(R.id.switchCharging, prefs.onlyWhileCharging) { prefs.onlyWhileCharging = it }
         bindSwitch(R.id.switchNotifications, prefs.showNotifications) { prefs.showNotifications = it }
+        bindSwitch(R.id.switchSingleTap, prefs.singleTapToExit) { prefs.singleTapToExit = it }
+
+        // Widgets
+        bindSwitch(R.id.switchAlarm, prefs.showAlarm) { prefs.showAlarm = it }
+        bindSwitch(R.id.switchMedia, prefs.showMedia) { prefs.showMedia = it }
+        switchCalendar = findViewById(R.id.switchCalendar)
+        bindSwitch(R.id.switchCalendar, prefs.showCalendar) { on ->
+            prefs.showCalendar = on
+            if (on && checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.READ_CALENDAR), REQ_CALENDAR)
+            }
+        }
+        btnWidget = findViewById(R.id.btnWidget)
+        btnWidget.setOnClickListener {
+            if (prefs.hostedWidgetId != -1) {
+                WidgetHost.remove(this)
+                updateWidgetButton()
+            } else {
+                pickWidget()
+            }
+        }
 
         val labelBrightness = findViewById<TextView>(R.id.labelBrightness)
         bindSlider(R.id.sliderBrightness, prefs.brightness) {
@@ -99,6 +127,15 @@ class MainActivity : AppCompatActivity() {
         btnBattery.text = label(R.string.perm_battery, batteryOk)
         btnBattery.isEnabled = !batteryOk
 
+        updateWidgetButton()
+
+        // Kalender-Widget ausschalten, wenn die Kalender-Berechtigung abgelehnt wurde.
+        if (prefs.showCalendar &&
+            checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED
+        ) {
+            switchCalendar.isChecked = false
+        }
+
         // Falls die Overlay-Berechtigung entzogen wurde, Dienst ausschalten.
         if (prefs.enabled && !overlayOk) prefs.enabled = false
         switchEnabled.isChecked = prefs.enabled
@@ -111,6 +148,93 @@ class MainActivity : AppCompatActivity() {
                     ComponentName(this, NotificationWatcher::class.java)
                 )
             }
+        }
+    }
+
+    // ---------------- Android-Widget auswählen ----------------
+
+    private fun updateWidgetButton() {
+        val id = prefs.hostedWidgetId
+        val info = if (id != -1) WidgetHost.manager(this).getAppWidgetInfo(id) else null
+        if (id != -1 && info == null) prefs.hostedWidgetId = -1 // App des Widgets wurde deinstalliert
+        btnWidget.text = if (info != null) getString(R.string.widget_remove, info.loadLabel(packageManager))
+        else getString(R.string.widget_add)
+    }
+
+    private fun pickWidget() {
+        val providers = WidgetHost.manager(this).installedProviders
+            .sortedBy { it.loadLabel(packageManager).toString().lowercase() }
+        if (providers.isEmpty()) {
+            Toast.makeText(this, R.string.widget_none, Toast.LENGTH_LONG).show()
+            return
+        }
+        val labels = providers.map { p ->
+            val app = runCatching {
+                packageManager.getApplicationLabel(
+                    packageManager.getApplicationInfo(p.provider.packageName, 0)
+                ).toString()
+            }.getOrDefault(p.provider.packageName)
+            val name = p.loadLabel(packageManager).toString()
+            if (name == app) name else "$app – $name"
+        }.toTypedArray()
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.widget_pick)
+            .setItems(labels) { _, which -> bindWidget(providers[which]) }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun bindWidget(info: AppWidgetProviderInfo) {
+        val host = WidgetHost.host(this)
+        val id = host.allocateAppWidgetId()
+        pendingWidgetId = id
+        if (WidgetHost.manager(this).bindAppWidgetIdIfAllowed(id, info.provider)) {
+            configureOrSave(id, info)
+        } else {
+            // Android fragt den Nutzer einmalig, ob die App Widgets anzeigen darf.
+            val i = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
+            @Suppress("DEPRECATION")
+            startActivityForResult(i, REQ_BIND)
+        }
+    }
+
+    private fun configureOrSave(id: Int, info: AppWidgetProviderInfo?) {
+        if (info?.configure != null) {
+            val started = runCatching {
+                WidgetHost.host(this).startAppWidgetConfigureActivityForResult(this, id, 0, REQ_CONFIGURE, null)
+            }.isSuccess
+            if (started) return
+        }
+        saveWidget(id)
+    }
+
+    private fun saveWidget(id: Int) {
+        WidgetHost.remove(this)
+        prefs.hostedWidgetId = id
+        pendingWidgetId = -1
+        updateWidgetButton()
+    }
+
+    private fun discardPendingWidget() {
+        if (pendingWidgetId != -1) {
+            runCatching { WidgetHost.host(this).deleteAppWidgetId(pendingWidgetId) }
+            pendingWidgetId = -1
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        val id = pendingWidgetId
+        when (requestCode) {
+            REQ_BIND -> if (resultCode == Activity.RESULT_OK && id != -1) {
+                configureOrSave(id, WidgetHost.manager(this).getAppWidgetInfo(id))
+            } else discardPendingWidget()
+            REQ_CONFIGURE -> if (resultCode == Activity.RESULT_OK && id != -1) saveWidget(id) else discardPendingWidget()
         }
     }
 
@@ -133,5 +257,11 @@ class MainActivity : AppCompatActivity() {
         s.value = initial.toFloat().coerceIn(s.valueFrom, s.valueTo)
         onChange(s.value.toInt())
         s.addOnChangeListener { _, v, _ -> onChange(v.toInt()) }
+    }
+
+    companion object {
+        private const val REQ_CALENDAR = 2
+        private const val REQ_BIND = 10
+        private const val REQ_CONFIGURE = 11
     }
 }

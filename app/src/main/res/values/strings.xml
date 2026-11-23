@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Always On Display</string>
-    <string name="intro">Zeigt Uhr, Datum, Akku und Benachrichtigungen auf schwarzem Bildschirm an, sobald du das Display ausschaltest. Doppelt tippen zum Entsperren, Power-Taste zum wirklichen Ausschalten.</string>
+    <string name="intro">Zeigt Uhr, Datum, Akku und Benachrichtigungen auf schwarzem Bildschirm an, sobald du das Display ausschaltest. Antippen zum Entsperren, Power-Taste zum wirklichen Ausschalten.</string>
     <string name="enable">Always On Display aktiv</string>
     <string name="permissions">Berechtigungen</string>
     <string name="options">Optionen</string>
@@ -17,6 +17,19 @@
     <string name="preview">Vorschau</string>
     <string name="tip">Tipp: Schalte das eingebaute Always-On-Display des Pixels aus (Einstellungen → Display → Sperrbildschirm), damit sich beide nicht überschneiden. Ein dauerhaft eingeschaltetes Display verbraucht mehr Akku als das System-AOD – die schwarze Fläche hält das auf OLED-Displays aber gering.</string>
     <string name="double_tap_hint">Doppelt tippen zum Entsperren</string>
+    <string name="tap_hint">Tippen zum Entsperren</string>
+    <string name="single_tap">Einmal tippen beendet das AOD (aus: doppelt tippen)</string>
+    <string name="widgets">Widgets</string>
+    <string name="widget_alarm">Nächster Wecker</string>
+    <string name="widget_calendar">Nächster Termin (heute/morgen)</string>
+    <string name="widget_media">Musiksteuerung (braucht Benachrichtigungszugriff)</string>
+    <string name="widget_add">Android-Widget hinzufügen (z. B. Wetter)</string>
+    <string name="widget_remove">Android-Widget entfernen: %1$s</string>
+    <string name="widget_pick">Widget auswählen</string>
+    <string name="widget_none">Keine Widgets gefunden</string>
+    <string name="media_prev">Zurück</string>
+    <string name="media_play">Wiedergabe/Pause</string>
+    <string name="media_next">Weiter</string>
     <string name="channel_name">AOD-Dienst</string>
     <string name="service_running">Always On Display ist aktiv</string>
     <string name="need_overlay">Bitte zuerst „Über anderen Apps einblenden“ erlauben.</string>

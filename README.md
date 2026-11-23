@@ -6,7 +6,8 @@ Always-On-Anzeige mit Uhr, Datum, Akkustand und Benachrichtigungssymbolen zeigt.
 ## Funktionen
 - Startet automatisch, wenn das Display ausgeschaltet wird (auch nach Neustart)
 - Uhr, Datum, Akku (⚡ beim Laden), Symbole der Apps mit Benachrichtigungen
-- Doppelt tippen → Entsperren · Power-Taste → Bildschirm wirklich aus
+- Antippen (einstellbar: einmal oder doppelt) → Entsperren · Power-Taste → Bildschirm wirklich aus
+- Widgets: nächster Wecker, nächster Termin, Musiksteuerung und ein beliebiges Android-Widget (z. B. Wetter)
 - Einbrennschutz: Inhalt verschiebt sich jede Minute
 - Näherungssensor: Display geht in der Tasche aus
 - Optionen: nur beim Laden, Helligkeit, automatisch ausschalten, Mindest-Akkustand

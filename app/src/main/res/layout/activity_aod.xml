@@ -7,10 +7,10 @@
 
     <LinearLayout
         android:id="@+id/content"
-        android:layout_width="wrap_content"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="60dp"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
@@ -46,14 +46,106 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:orientation="horizontal" />
+
+        <!-- Widget: nächster Wecker -->
+        <TextView
+            android:id="@+id/alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:textColor="#9A9A9A"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
+        <!-- Widget: nächster Termin -->
+        <TextView
+            android:id="@+id/calendar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textColor="#9A9A9A"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
+        <!-- Widget: Musiksteuerung -->
+        <LinearLayout
+            android:id="@+id/media"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/mediaTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="#C8C8C8"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/mediaArtist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="#808080"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/mediaPrev"
+                    android:layout_width="56dp"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/media_prev"
+                    android:src="@android:drawable/ic_media_previous" />
+
+                <ImageButton
+                    android:id="@+id/mediaPlay"
+                    android:layout_width="56dp"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/media_play"
+                    android:src="@android:drawable/ic_media_play" />
+
+                <ImageButton
+                    android:id="@+id/mediaNext"
+                    android:layout_width="56dp"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/media_next"
+                    android:src="@android:drawable/ic_media_next" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Platz für ein beliebiges Android-Widget -->
+        <FrameLayout
+            android:id="@+id/hostedWidget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:alpha="0.8"
+            android:visibility="gone" />
     </LinearLayout>
 
     <TextView
+        android:id="@+id/hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="48dp"
-        android:text="@string/double_tap_hint"
         android:textColor="#3A3A3A"
         android:textSize="12sp" />
 </FrameLayout>
